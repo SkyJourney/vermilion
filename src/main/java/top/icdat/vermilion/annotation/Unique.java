@@ -1,13 +1,14 @@
 package top.icdat.vermilion.annotation;
 
+
 import java.lang.annotation.*;
 
 /**
- * @author SkyJourney
+ * @author lyz-4dou
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Table {
-    String value() default "";
+public @interface Unique {
+    boolean value() default true;
 }
