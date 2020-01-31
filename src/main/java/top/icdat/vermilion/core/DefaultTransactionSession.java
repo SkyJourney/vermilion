@@ -3,7 +3,7 @@ package top.icdat.vermilion.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DefaultTransactionSession extends DefaultSession implements TransactionSession {
+public class DefaultTransactionSession extends AbstractSession implements TransactionSession {
 
     public DefaultTransactionSession(Connection connection) {
         super(connection);
