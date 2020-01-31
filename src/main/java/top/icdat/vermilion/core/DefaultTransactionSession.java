@@ -18,4 +18,10 @@ public class DefaultTransactionSession extends DefaultSession implements Transac
     public void rollback() throws SQLException {
         getConnection().rollback();
     }
+
+    @Override
+    public void close() throws SQLException {
+        getConnection().setAutoCommit(true);
+        super.close();
+    }
 }
