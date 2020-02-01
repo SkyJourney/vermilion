@@ -1,21 +1,48 @@
 package top.icdat.vermilion.data;
 
+import top.icdat.vermilion.annotation.Delete;
+import top.icdat.vermilion.annotation.Insert;
+import top.icdat.vermilion.annotation.Select;
+import top.icdat.vermilion.annotation.Update;
+
 import java.util.List;
 
 public interface Operator<T> {
 
-    T insert(T t);
+    @Insert
+    T insert(T item);
 
+    @Insert
+    List<T> insert(List<T> tList);
+
+    @Delete
     int delete(Criteria<T> criteria);
 
-    boolean deleteOne(T t);
+    @Delete
+    int delete(T criteria);
 
-    int update(Criteria<T> criteria,T t);
+    @Delete
+    boolean deleteOne(T item);
 
-    T updateOne(T t);
+    @Update
+    int update(Criteria<T> criteria,T item);
 
-    List<T> select(T t);
+    @Update
+    int update(T criteria, T item);
 
-    T selectOne(T t);
+    @Update
+    int update(T item);
+
+    @Update
+    boolean updateOne(T item);
+
+    @Select
+    List<T> select(Criteria<T> criteria);
+
+    @Select
+    List<T> select(T item);
+
+    @Select
+    T selectOne(T item);
 
 }
