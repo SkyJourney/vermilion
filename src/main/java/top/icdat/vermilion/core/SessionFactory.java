@@ -8,6 +8,10 @@ import java.sql.SQLException;
  */
 public interface SessionFactory {
 
-    Session getSession() throws SQLException;
+    default Session getSession() throws SQLException {
+        return getSession(true);
+    }
+
+    Session getSession(boolean isAutoCommit) throws SQLException;
 
 }

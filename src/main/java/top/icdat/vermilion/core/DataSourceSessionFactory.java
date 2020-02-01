@@ -7,7 +7,6 @@ import java.sql.SQLException;
 public class DataSourceSessionFactory implements SessionFactory {
 
     private DataSource dataSource;
-    private boolean isAutoCommit = true;
 
     public DataSourceSessionFactory(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -17,16 +16,8 @@ public class DataSourceSessionFactory implements SessionFactory {
         return dataSource;
     }
 
-    public boolean isAutoCommit() {
-        return isAutoCommit;
-    }
-
-    public void setAutoCommit(boolean autoCommit) {
-        isAutoCommit = autoCommit;
-    }
-
     @Override
-    public Session getSession() throws SQLException {
+    public Session getSession(boolean isAutoCommit) throws SQLException {
         Connection connection = dataSource.getConnection();
         connection.setAutoCommit(isAutoCommit);
         if(!isAutoCommit) {
