@@ -3,6 +3,8 @@ package top.icdat.vermilion.utils;
 import com.google.common.base.CaseFormat;
 import top.icdat.vermilion.annotation.Column;
 import top.icdat.vermilion.annotation.Primary;
+import top.icdat.vermilion.core.decode.DecoderExecutor;
+import top.icdat.vermilion.exception.DataTypeException;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -10,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class VermilionReflectUtils {
+public class FieldReflectUtils {
 
     public static Field getFieldByName(String fieldName, Collection<Field> fields) {
         for(Field field : fields) {
@@ -34,14 +36,14 @@ public class VermilionReflectUtils {
                 throw new RuntimeException(e.getMessage(),e);
             }
             if (obj !=null) {
-                criteria.put(getColumnName(field),getColumnValue(field.getType().cast(obj)));
+                criteria.put(getColumnName(field),getColumnValue(typeConverter(field.getType(), obj)));
             }
         }
         return criteria;
     }
 
     private static <T> Field[] getColumnFields(T t) {
-        Field[] fields = t.getClass().getFields();
+        Field[] fields = t.getClass().getDeclaredFields();
         return Stream.of(fields)
                 .filter(field ->
                         field.getAnnotation(Primary.class)!=null ||
@@ -62,7 +64,7 @@ public class VermilionReflectUtils {
     }
 
     private static <T> String getColumnValue(T t) {
-        return null;
+        return DecoderExecutor.execute(t);
     }
 
     private static String getColumnName0(String value, Field field) {
@@ -71,6 +73,19 @@ public class VermilionReflectUtils {
         } else {
             return value;
         }
+    }
+
+    public static <T> T typeConverter(Class<T> tClass, Object object) {
+        if (tClass.equals(int.class)
+                || tClass.equals(byte.class)
+                || tClass.equals(boolean.class)
+                || tClass.equals(long.class)
+                || tClass.equals(short.class)
+                || tClass.equals(float.class)
+                || tClass.equals(char.class)) {
+            throw new DataTypeException("Cannot use primitive types in POJO class.");
+        }
+        return tClass.cast(object);
     }
 
 }

@@ -2,9 +2,10 @@ package top.icdat.vermilion.data;
 
 import top.icdat.vermilion.exception.InstantiatedException;
 import top.icdat.vermilion.exception.InvocationException;
+import top.icdat.vermilion.exception.NoSuchFieldException;
 import top.icdat.vermilion.exception.NoSuchMethodException;
 import top.icdat.vermilion.utils.TextProcessingUtils;
-import top.icdat.vermilion.utils.VermilionReflectUtils;
+import top.icdat.vermilion.utils.FieldReflectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -33,31 +34,19 @@ public class Primary<T> extends Container<T> {
     }
 
     private void initPrimaries() {
-        Field[] fields = getInclusion().getClass().getFields();
+        Field[] fields = getInclusion().getClass().getDeclaredFields();
         primaries = Arrays.stream(fields)
                 .filter(field -> field.getAnnotation(top.icdat.vermilion.annotation.Primary.class)!=null)
                 .collect(Collectors.toMap(field -> field, field -> Boolean.FALSE,(f1, f2) -> f1, HashMap::new));
     }
 
     public Primary<T> setPrimary(String field, Object value) {
-        Field field1 = VermilionReflectUtils.getFieldByName(field, primaries.keySet());
-        if (field1!=null) {
-            Method method;
-            try {
-                method = getInclusion().getClass().getMethod(TextProcessingUtils.getSetterName(field1),field1.getType());
-            } catch (java.lang.NoSuchMethodException e) {
-                e.printStackTrace();
-                throw new NoSuchMethodException("Cannot find setter method for field ["+field+"].");
-            }
-            try {
-                method.invoke(getInclusion(), value);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-                throw new InvocationException("Occur an exception when invoking setter method. Check the value type.");
-            }
-            primaries.put(field1, Boolean.TRUE);
+        Field setField = FieldReflectUtils.getFieldByName(field, primaries.keySet());
+        if (setField!=null) {
+            setFieldValue(setField, value);
+            primaries.put(setField, Boolean.TRUE);
         } else {
-            throw new RuntimeException();
+            throw new NoSuchFieldException("No such PrimaryKey named as ["+field+"].");
         }
         return this;
     }
