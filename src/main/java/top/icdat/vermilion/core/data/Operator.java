@@ -1,4 +1,4 @@
-package top.icdat.vermilion.data;
+package top.icdat.vermilion.core.data;
 
 import top.icdat.vermilion.annotation.Delete;
 import top.icdat.vermilion.annotation.Insert;
@@ -44,5 +44,11 @@ public interface Operator<T> {
 
     @Select
     T selectOne(T item);
+
+    @Select
+    long count(Criteria<T> criteria);
+
+    @Select
+    long count(T item);
 
 }

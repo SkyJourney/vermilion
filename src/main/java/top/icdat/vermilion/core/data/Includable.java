@@ -1,4 +1,4 @@
-package top.icdat.vermilion.data;
+package top.icdat.vermilion.core.data;
 
 public interface Includable<T> {
 

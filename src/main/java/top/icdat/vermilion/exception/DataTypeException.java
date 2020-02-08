@@ -9,4 +9,7 @@ public class DataTypeException extends RuntimeException {
         super(message);
     }
 
+    public DataTypeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

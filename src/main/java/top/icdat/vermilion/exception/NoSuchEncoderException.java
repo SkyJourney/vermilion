@@ -7,4 +7,8 @@ public class NoSuchEncoderException extends RuntimeException {
 
     public NoSuchEncoderException() {
     }
+
+    public NoSuchEncoderException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

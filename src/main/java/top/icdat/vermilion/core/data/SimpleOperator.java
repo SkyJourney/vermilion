@@ -1,4 +1,4 @@
-package top.icdat.vermilion.data;
+package top.icdat.vermilion.core.data;
 
 import top.icdat.vermilion.annotation.Delete;
 import top.icdat.vermilion.annotation.Select;

@@ -9,4 +9,8 @@ public class NoSuchMethodException extends RuntimeException {
     public NoSuchMethodException(String message) {
         super(message);
     }
+
+    public NoSuchMethodException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

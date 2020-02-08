@@ -1,10 +1,10 @@
-package top.icdat.vermilion.core;
+package top.icdat.vermilion.core.session;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DataSourceSessionFactory implements SessionFactory {
+public class DataSourceSessionFactory extends AbstractSessionFactory {
 
     private DataSource dataSource;
 
@@ -16,14 +16,19 @@ public class DataSourceSessionFactory implements SessionFactory {
         return dataSource;
     }
 
+    protected void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public Session getSession(boolean isAutoCommit) throws SQLException {
         Connection connection = dataSource.getConnection();
         connection.setAutoCommit(isAutoCommit);
         if(!isAutoCommit) {
-            return new DefaultTransactionSession(connection);
+            return new DefaultTransactionSession(connection,getSqlGenerator());
         } else {
-            return new DefaultSession(connection);
+            return  new DefaultSession(connection,getSqlGenerator());
         }
     }
+
 }

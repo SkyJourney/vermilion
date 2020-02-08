@@ -1,15 +1,15 @@
-package top.icdat.vermilion.utils;
+package top.icdat.vermilion.utils.reflect;
 
 import com.google.common.base.CaseFormat;
 import top.icdat.vermilion.annotation.Column;
+import top.icdat.vermilion.annotation.NonNull;
 import top.icdat.vermilion.annotation.Primary;
 import top.icdat.vermilion.core.decode.DecoderExecutor;
 import top.icdat.vermilion.exception.DataTypeException;
+import top.icdat.vermilion.exception.NoSuchFieldException;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class FieldReflectUtils {
@@ -23,27 +23,42 @@ public class FieldReflectUtils {
         return null;
     }
 
+    public static List<String> getAllFields(Class<?> clz) {
+        Field[] fields = getColumnFields(clz);
+        List<String> fieldList = new ArrayList<>();
+        for (Field field : fields) {
+            fieldList.add(getColumnSqlName(field));
+        }
+        return fieldList;
+    }
+
     public static <T> Map<String,String> getNotNullFields(T t) {
-        Field[] fields = getColumnFields(t);
+        return getNotNullFields(t,false);
+    }
+
+    public static <T> Map<String,String> getNotNullFields(T t, boolean checkNotNull) {
+        Field[] fields = getColumnFields(t.getClass());
         Map<String,String> criteria = new HashMap<>();
         for (Field field : fields) {
             field.setAccessible(true);
             Object obj;
             try {
-                 obj = field.get(t);
+                obj = field.get(t);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e.getMessage(),e);
             }
             if (obj !=null) {
-                criteria.put(getColumnName(field),getColumnValue(typeConverter(field.getType(), obj)));
+                criteria.put(getColumnSqlName(field),getColumnValue(typeConverter(field.getType(), obj)));
+            } else if (checkNotNull && field.getAnnotation(NonNull.class)!=null) {
+                throw new RuntimeException();
             }
         }
         return criteria;
     }
 
-    private static <T> Field[] getColumnFields(T t) {
-        Field[] fields = t.getClass().getDeclaredFields();
+    public static Field[] getColumnFields(Class<?> clz) {
+        Field[] fields = clz.getDeclaredFields();
         return Stream.of(fields)
                 .filter(field ->
                         field.getAnnotation(Primary.class)!=null ||
@@ -51,16 +66,8 @@ public class FieldReflectUtils {
                 .toArray(Field[]::new);
     }
 
-    private static String getColumnName(Field field) {
-        Primary primary = field.getAnnotation(Primary.class);
-        if (primary!=null) {
-            return "`" + getColumnName0(primary.value(),field) + "`";
-        }
-        Column column = field.getAnnotation(Column.class);
-        if (column!=null) {
-            return "`" + getColumnName0(column.value(),field) + "`";
-        }
-        throw new RuntimeException();
+    public static String getColumnSqlName(Field field) {
+        return "`" + getColumnName(field) + "`";
     }
 
     private static <T> String getColumnValue(T t) {
@@ -86,6 +93,26 @@ public class FieldReflectUtils {
             throw new DataTypeException("Cannot use primitive types in POJO class.");
         }
         return tClass.cast(object);
+    }
+
+    public static String getColumnName(Field field) {
+        Primary primary = field.getAnnotation(Primary.class);
+        if (primary!=null) {
+            return getColumnName0(primary.value(),field);
+        }
+        Column column = field.getAnnotation(Column.class);
+        if (column!=null) {
+            return getColumnName0(column.value(),field);
+        }
+        throw new RuntimeException();
+    }
+
+    public static Field requiredExists(Class<?> clz, String fieldName) {
+        try {
+            return clz.getDeclaredField(fieldName);
+        } catch (java.lang.NoSuchFieldException e) {
+            throw new NoSuchFieldException("No such field in class["+clz.getName()+"].",e);
+        }
     }
 
 }

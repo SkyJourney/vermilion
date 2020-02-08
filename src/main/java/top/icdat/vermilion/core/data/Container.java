@@ -1,7 +1,7 @@
-package top.icdat.vermilion.data;
+package top.icdat.vermilion.core.data;
 
 import top.icdat.vermilion.exception.InvocationException;
-import top.icdat.vermilion.utils.FieldReflectUtils;
+import top.icdat.vermilion.utils.reflect.FieldReflectUtils;
 
 import java.lang.reflect.Field;
 
@@ -11,6 +11,10 @@ public abstract class Container<T> implements Includable<T> {
 
     public Container(T t) {
         this.t = t;
+    }
+
+    protected T getT() {
+        return t;
     }
 
     @Override

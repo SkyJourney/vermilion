@@ -9,4 +9,8 @@ public class InstantiatedException extends RuntimeException {
     public InstantiatedException(String message) {
         super(message);
     }
+
+    public InstantiatedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

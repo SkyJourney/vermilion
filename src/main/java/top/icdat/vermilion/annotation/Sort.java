@@ -6,5 +6,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Sort {
+
     String[] value();
+
+    SortType type() default SortType.ASC;
+
 }

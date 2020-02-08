@@ -1,15 +1,11 @@
-package top.icdat.vermilion.data;
+package top.icdat.vermilion.core.data;
 
 import top.icdat.vermilion.exception.InstantiatedException;
-import top.icdat.vermilion.exception.InvocationException;
+import top.icdat.vermilion.exception.MissingPrimaryKeyException;
 import top.icdat.vermilion.exception.NoSuchFieldException;
-import top.icdat.vermilion.exception.NoSuchMethodException;
-import top.icdat.vermilion.utils.TextProcessingUtils;
-import top.icdat.vermilion.utils.FieldReflectUtils;
+import top.icdat.vermilion.utils.reflect.FieldReflectUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +20,7 @@ public class Primary<T> extends Container<T> {
         initPrimaries();
     }
 
-    public static <T> Primary<T> newPrimary(Class<T> tableModel) {
+    public static <T> Primary<T> of(Class<T> tableModel) {
         try {
             return new Primary<T>(tableModel.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
@@ -34,7 +30,7 @@ public class Primary<T> extends Container<T> {
     }
 
     private void initPrimaries() {
-        Field[] fields = getInclusion().getClass().getDeclaredFields();
+        Field[] fields = getT().getClass().getDeclaredFields();
         primaries = Arrays.stream(fields)
                 .filter(field -> field.getAnnotation(top.icdat.vermilion.annotation.Primary.class)!=null)
                 .collect(Collectors.toMap(field -> field, field -> Boolean.FALSE,(f1, f2) -> f1, HashMap::new));
@@ -52,7 +48,15 @@ public class Primary<T> extends Container<T> {
     }
 
     public boolean isPrimariesFullSet() {
-        return primaries.containsValue(Boolean.FALSE);
+        return !primaries.containsValue(Boolean.FALSE);
     }
 
+    @Override
+    public T getInclusion() {
+        if (isPrimariesFullSet()) {
+            return super.getInclusion();
+        } else {
+            throw new MissingPrimaryKeyException("The primary keys of ["+getT().getClass()+"] are not filled.");
+        }
+    }
 }

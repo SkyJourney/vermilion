@@ -7,4 +7,8 @@ public class NoSuchDecoderException extends RuntimeException {
 
     public NoSuchDecoderException() {
     }
+
+    public NoSuchDecoderException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -7,4 +7,8 @@ public class InvocationException extends RuntimeException {
 
     public InvocationException() {
     }
+
+    public InvocationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
